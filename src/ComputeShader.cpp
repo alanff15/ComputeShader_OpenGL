@@ -26,6 +26,10 @@ void ComputeShader::addKernel(std::string Program, uint32_t ProgramIndex) {
   GLCall(glCompileShader(cs));
   if (ProgramIndex == programId.size()) {
     programId.push_back(-1);
+  } else {
+    GLCall(glDeleteProgram(programId[ProgramIndex]));
+  }
+  if (ProgramIndex >= 0 && ProgramIndex < programId.size()) {
     // linkar programa
     GLCall(programId[ProgramIndex] = glCreateProgram());
     GLCall(glAttachShader(programId[ProgramIndex], cs));
