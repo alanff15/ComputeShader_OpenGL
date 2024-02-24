@@ -1,19 +1,43 @@
 #define GLEW_STATIC
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
+#include <iostream>
 
-#include "Renderer/Renderer.h"
+#define ASSERT(x) \
+  if (!(x)) __debugbreak();
 
-#include "../../res/compute.glsl"
+#define GLCall(x) \
+  GLClearError(); \
+  x;              \
+  ASSERT(GLLogCall(#x, __FILE__, __LINE__))
 
-#include <fstream>
-#include <string>
-std::string parseShader(const std::string& filepath) {
-  std::ifstream stream(filepath);
-  std::string line, ret = "";
-  while (getline(stream, line)) ret += line + "\n";
-  return ret;
+void GLClearError() {
+  while (glGetError() != GL_NO_ERROR)
+    ;
 }
+
+bool GLLogCall(const char* function, const char* file, int line) {
+  while (GLenum error = glGetError()) {
+    std::cout << "[OpenGL Error] (" << error << "): " << function << " " << file << ":" << line << std::endl;
+    return false;
+  }
+  return true;
+}
+
+static const std::string shaderProgStr = R"glsl(
+///////////////////////////////////////////////////////////////////////////////
+// compute shader
+#version 430 core
+
+layout(local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
+layout(binding = 0) buffer readwrite { float buf[]; };
+
+void main() {
+  const uint idx = gl_GlobalInvocationID.x;
+  buf[idx] *= 2.0;
+}
+///////////////////////////////////////////////////////////////////////////////
+)glsl";
 
 void initGL(GLFWwindow*& window, int width = 1, int height = 1, const char* title = "", bool windowVisible = false) {
   if (!glfwInit()) {
@@ -45,11 +69,11 @@ void initGL(GLFWwindow*& window, int width = 1, int height = 1, const char* titl
 }
 
 int main() {
+  // abrir contexto opengl
   GLFWwindow* window;
   initGL(window);
 
   // compilar shader
-  // std::string shaderProgStr = parseShader("../../res/compute.glsl");
   const char* src = shaderProgStr.c_str();
   GLCall(uint32_t cs = glCreateShader(GL_COMPUTE_SHADER));
   GLCall(glShaderSource(cs, 1, &src, NULL));
@@ -64,7 +88,7 @@ int main() {
 
   // entrada
   constexpr int size = 10;
-  float data[size] = {10, 11, 12, 13, 14, 15, 16, 17, 18, 19};
+  float data[size] = {10.1f, 11.1f, 12.1f, 13.1f, 14.1f, 15.1f, 16.1f, 17.1f, 18.1f, 19.1f};
   for (int i = 0; i < size; i++) std::cout << data[i] << (i == size - 1 ? "\n" : " ") << std::ends;  // mostrar
   // enviar dados para gpu
   GLuint bufId;
@@ -84,7 +108,10 @@ int main() {
   // saida
   for (int i = 0; i < size; i++) std::cout << data[i] << (i == size - 1 ? "\n" : " ") << std::ends;  // mostrar
 
+  // apagar programa da gpu
   GLCall(glDeleteProgram(computeProgram));
+  // fechar contexto opengl
   glfwTerminate();
+
   return EXIT_SUCCESS;
 }
