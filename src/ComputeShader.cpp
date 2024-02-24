@@ -82,8 +82,8 @@ void ComputeShader::realeaseData() {
   bufId.clear();
 }
 
-void ComputeShader::synchronize() {
-  GLCall(glMemoryBarrier(GL_ALL_BARRIER_BITS));
+void ComputeShader::synchronize(GLuint barriers) {
+  GLCall(glMemoryBarrier(barriers));
 }
 
 void ComputeShader::initGL(GLFWwindow*& window, int width, int height, const char* title, bool windowVisible) {
