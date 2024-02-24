@@ -1,65 +1,80 @@
 #include <iostream>
 #include "ComputeShader.h"
 
-ComputeShader::ComputeShader(std::string prog) {
+ComputeShader::ComputeShader() {
   // abrir contexto opengl
   initGL(window);
-  // compilar shader
-  const char* src = prog.c_str();
-  GLCall(uint32_t cs = glCreateShader(GL_COMPUTE_SHADER));
-  GLCall(glShaderSource(cs, 1, &src, NULL));
-  GLCall(glCompileShader(cs));
-  // linkar programa
-  GLCall(computeProgram = glCreateProgram());
-  GLCall(glAttachShader(computeProgram, cs));
-  GLCall(glLinkProgram(computeProgram));
-  GLCall(glValidateProgram(computeProgram));
-  // limpar memoria
-  GLCall(glDeleteShader(cs));
 }
 
 ComputeShader::~ComputeShader() {
   // liberar memoria de dados
   realeaseData();
-  // apagar programa da gpu
-  GLCall(glDeleteProgram(computeProgram));
+  // apagar programas da gpu
+  for (int ProgramIndex = 0; ProgramIndex < programId.size(); ProgramIndex++) {
+    GLCall(glDeleteProgram(programId[ProgramIndex]));
+  }
+  programId.clear();
   // fechar contexto opengl
   glfwTerminate();
 }
 
-void ComputeShader::uploadData(float* data, size_t size, uint32_t Index) {
-  if (Index == bufId.size()) {
-    bufId.push_back(-1);
-    GLCall(glGenBuffers(1, &bufId[Index]));
-  }
-  if (Index >= 0 && Index < bufId.size()) {
-    GLCall(glBindBuffer(GL_SHADER_STORAGE_BUFFER, bufId[Index]));
-    GLCall(glBufferData(GL_SHADER_STORAGE_BUFFER, size * sizeof(float), (GLvoid*)data, GL_DYNAMIC_COPY));
-    GLCall(glBindBufferBase(GL_SHADER_STORAGE_BUFFER, Index, bufId[Index]));
+void ComputeShader::addKernel(std::string Program, uint32_t ProgramIndex) {
+  // compilar shader
+  const char* src = Program.c_str();
+  GLCall(uint32_t cs = glCreateShader(GL_COMPUTE_SHADER));
+  GLCall(glShaderSource(cs, 1, &src, NULL));
+  GLCall(glCompileShader(cs));
+  if (ProgramIndex == programId.size()) {
+    programId.push_back(-1);
+    // linkar programa
+    GLCall(programId[ProgramIndex] = glCreateProgram());
+    GLCall(glAttachShader(programId[ProgramIndex], cs));
+    GLCall(glLinkProgram(programId[ProgramIndex]));
+    GLCall(glValidateProgram(programId[ProgramIndex]));
   } else {
-    std::cout << "[ComputeShader Error] data upload Index=" << Index << ", next value should be: " << bufId.size() << std::endl;
+    std::cout << "[ComputeShader Error] data program Index=" << ProgramIndex << ", next value should be: " << programId.size() << std::endl;
+  }
+  // limpar memoria
+  GLCall(glDeleteShader(cs));
+}
+
+void ComputeShader::uploadData(float* data, size_t size, uint32_t BindingIndex) {
+  if (BindingIndex == bufId.size()) {
+    bufId.push_back(-1);
+    GLCall(glGenBuffers(1, &bufId[BindingIndex]));
+  }
+  if (BindingIndex >= 0 && BindingIndex < bufId.size()) {
+    GLCall(glBindBuffer(GL_SHADER_STORAGE_BUFFER, bufId[BindingIndex]));
+    GLCall(glBufferData(GL_SHADER_STORAGE_BUFFER, size * sizeof(float), (GLvoid*)data, GL_DYNAMIC_COPY));
+    GLCall(glBindBufferBase(GL_SHADER_STORAGE_BUFFER, BindingIndex, bufId[BindingIndex]));
+  } else {
+    std::cout << "[ComputeShader Error] data upload Index=" << BindingIndex << ", next value should be: " << bufId.size() << std::endl;
   }
 }
 
-void ComputeShader::compute(uint32_t sizeX, uint32_t sizeY, uint32_t sizeZ) {
-  GLCall(glUseProgram(computeProgram));
-  GLCall(glDispatchCompute(sizeX, sizeY, sizeZ));  // cria workgroups
-  GLCall(glMemoryBarrier(GL_ALL_BARRIER_BITS));    // sincronizar
+void ComputeShader::compute(uint32_t ProgramIndex, uint32_t sizeX, uint32_t sizeY, uint32_t sizeZ) {
+  if (ProgramIndex >= 0 && ProgramIndex < programId.size()) {
+    GLCall(glUseProgram(programId[ProgramIndex]));
+    GLCall(glDispatchCompute(sizeX, sizeY, sizeZ));  // criar workgroups
+    GLCall(glMemoryBarrier(GL_ALL_BARRIER_BITS));    // sincronizar
+  } else {
+    std::cout << "[ComputeShader Error] data download Index=" << ProgramIndex << ", should be between: [0, " << programId.size() - 1 << "]" << std::endl;
+  }
 }
 
-void ComputeShader::downloadData(float* data, size_t size, uint32_t Index) {
-  if (Index >= 0 && Index < bufId.size()) {
-    GLCall(glBindBuffer(GL_SHADER_STORAGE_BUFFER, bufId[Index]));
+void ComputeShader::downloadData(float* data, size_t size, uint32_t BindingIndex) {
+  if (BindingIndex >= 0 && BindingIndex < bufId.size()) {
+    GLCall(glBindBuffer(GL_SHADER_STORAGE_BUFFER, bufId[BindingIndex]));
     GLCall(glGetBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, size * sizeof(float), (GLvoid*)data));
   } else {
-    std::cout << "[ComputeShader Error] data download Index=" << Index << ", should be between: [0, " << bufId.size() - 1 << "]" << std::endl;
+    std::cout << "[ComputeShader Error] data download Index=" << BindingIndex << ", should be between: [0, " << bufId.size() - 1 << "]" << std::endl;
   }
 }
 
 void ComputeShader::realeaseData() {
-  for (int Index = 0; Index < bufId.size(); Index++) {
-    GLCall(glBindBuffer(GL_SHADER_STORAGE_BUFFER, bufId[Index]));
-    GLCall(glDeleteBuffers(1, &bufId[Index]));
+  for (int BindingIndex = 0; BindingIndex < bufId.size(); BindingIndex++) {
+    GLCall(glBindBuffer(GL_SHADER_STORAGE_BUFFER, bufId[BindingIndex]));
+    GLCall(glDeleteBuffers(1, &bufId[BindingIndex]));
   }
   bufId.clear();
 }

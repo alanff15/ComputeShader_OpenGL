@@ -15,12 +15,14 @@
 
 class ComputeShader {
 public:
-  ComputeShader(std::string prog);
+  ComputeShader();
   ~ComputeShader();
 
-  void uploadData(float* data, size_t size, uint32_t Index);
-  void compute(uint32_t sizeX, uint32_t sizeY = 1, uint32_t sizeZ = 1);
-  void downloadData(float* data, size_t size, uint32_t Index);
+  void addKernel(std::string prog, uint32_t ProgramIndex);
+
+  void uploadData(float* data, size_t size, uint32_t BindingIndex);
+  void compute(uint32_t ProgramIndex, uint32_t sizeX, uint32_t sizeY = 1, uint32_t sizeZ = 1);
+  void downloadData(float* data, size_t size, uint32_t BindingIndex);
   void realeaseData();
 
 private:
@@ -29,6 +31,6 @@ private:
   bool GLLogCall(const char* function, const char* file, int line);
 
   GLFWwindow* window;
-  uint32_t computeProgram;
+  std::vector<GLuint> programId;
   std::vector<GLuint> bufId;
 };
