@@ -3,6 +3,7 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <string>
+#include <vector>
 
 #define ASSERT(x) \
   if (!(x)) __debugbreak();
@@ -17,9 +18,9 @@ public:
   ComputeShader(std::string prog);
   ~ComputeShader();
 
-  void uploadData(float* data, size_t size);
+  void uploadData(float* data, size_t size, uint32_t Index);
   void compute(uint32_t sizeX, uint32_t sizeY = 1, uint32_t sizeZ = 1);
-  void downloadData(float* data, size_t size);
+  void downloadData(float* data, size_t size, uint32_t Index);
   void realeaseData();
 
 private:
@@ -29,5 +30,5 @@ private:
 
   GLFWwindow* window;
   uint32_t computeProgram;
-  GLuint bufId;
+  std::vector<GLuint> bufId;
 };

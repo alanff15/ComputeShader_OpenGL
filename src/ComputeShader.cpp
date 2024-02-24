@@ -27,11 +27,18 @@ ComputeShader::~ComputeShader() {
   glfwTerminate();
 }
 
-void ComputeShader::uploadData(float* data, size_t size) {
-  GLCall(glGenBuffers(1, &bufId));
-  GLCall(glBindBuffer(GL_SHADER_STORAGE_BUFFER, bufId));
-  GLCall(glBufferData(GL_SHADER_STORAGE_BUFFER, size * sizeof(float), (GLvoid*)data, GL_DYNAMIC_COPY));
-  GLCall(glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, bufId));
+void ComputeShader::uploadData(float* data, size_t size, uint32_t Index) {
+  if (Index == bufId.size()) {
+    bufId.push_back(-1);
+    GLCall(glGenBuffers(1, &bufId[Index]));
+  }
+  if (Index >= 0 && Index < bufId.size()) {
+    GLCall(glBindBuffer(GL_SHADER_STORAGE_BUFFER, bufId[Index]));
+    GLCall(glBufferData(GL_SHADER_STORAGE_BUFFER, size * sizeof(float), (GLvoid*)data, GL_DYNAMIC_COPY));
+    GLCall(glBindBufferBase(GL_SHADER_STORAGE_BUFFER, Index, bufId[Index]));
+  } else {
+    std::cout << "[ComputeShader Error] data upload Index=" << Index << ", next value should be: " << bufId.size() << std::endl;
+  }
 }
 
 void ComputeShader::compute(uint32_t sizeX, uint32_t sizeY, uint32_t sizeZ) {
@@ -40,14 +47,21 @@ void ComputeShader::compute(uint32_t sizeX, uint32_t sizeY, uint32_t sizeZ) {
   GLCall(glMemoryBarrier(GL_ALL_BARRIER_BITS));    // sincronizar
 }
 
-void ComputeShader::downloadData(float* data, size_t size) {
-  GLCall(glBindBuffer(GL_SHADER_STORAGE_BUFFER, bufId));
-  GLCall(glGetBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, size * sizeof(float), (GLvoid*)data));
+void ComputeShader::downloadData(float* data, size_t size, uint32_t Index) {
+  if (Index >= 0 && Index < bufId.size()) {
+    GLCall(glBindBuffer(GL_SHADER_STORAGE_BUFFER, bufId[Index]));
+    GLCall(glGetBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, size * sizeof(float), (GLvoid*)data));
+  } else {
+    std::cout << "[ComputeShader Error] data download Index=" << Index << ", should be between: [0, " << bufId.size() - 1 << "]" << std::endl;
+  }
 }
 
 void ComputeShader::realeaseData() {
-  GLCall(glBindBuffer(GL_SHADER_STORAGE_BUFFER, bufId));
-  GLCall(glDeleteBuffers(1, &bufId));
+  for (int Index = 0; Index < bufId.size(); Index++) {
+    GLCall(glBindBuffer(GL_SHADER_STORAGE_BUFFER, bufId[Index]));
+    GLCall(glDeleteBuffers(1, &bufId[Index]));
+  }
+  bufId.clear();
 }
 
 void ComputeShader::initGL(GLFWwindow*& window, int width, int height, const char* title, bool windowVisible) {
