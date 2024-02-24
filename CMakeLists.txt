@@ -16,6 +16,7 @@ link_libraries(
 
 #################################################
 add_executable(computeshader
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/ComputeShader.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp
 )
 #################################################
