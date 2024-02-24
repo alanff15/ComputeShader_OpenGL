@@ -41,8 +41,7 @@ int main() {
   cs.downloadData(v2, size, 2);
 
   // saida
-  std::cout << "v2 = v0+v1" << std::endl;
-  std::cout << "v2 = " << std::ends;
+  std::cout << "v2 = v0+v1 = " << std::ends;
   for (int i = 0; i < size; i++) std::cout << v2[i] << (i == size - 1 ? "\n" : " ") << std::ends;  // mostrar
 
   return EXIT_SUCCESS;
