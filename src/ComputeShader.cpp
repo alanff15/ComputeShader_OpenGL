@@ -56,7 +56,6 @@ void ComputeShader::compute(uint32_t ProgramIndex, uint32_t sizeX, uint32_t size
   if (ProgramIndex >= 0 && ProgramIndex < programId.size()) {
     GLCall(glUseProgram(programId[ProgramIndex]));
     GLCall(glDispatchCompute(sizeX, sizeY, sizeZ));  // criar workgroups
-    GLCall(glMemoryBarrier(GL_ALL_BARRIER_BITS));    // sincronizar
   } else {
     std::cout << "[ComputeShader Error] data download Index=" << ProgramIndex << ", should be between: [0, " << programId.size() - 1 << "]" << std::endl;
   }
@@ -77,6 +76,10 @@ void ComputeShader::realeaseData() {
     GLCall(glDeleteBuffers(1, &bufId[BindingIndex]));
   }
   bufId.clear();
+}
+
+void ComputeShader::synchronize() {
+  GLCall(glMemoryBarrier(GL_ALL_BARRIER_BITS));
 }
 
 void ComputeShader::initGL(GLFWwindow*& window, int width, int height, const char* title, bool windowVisible) {

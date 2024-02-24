@@ -54,12 +54,14 @@ int main() {
 
   // kernel 0
   cs.compute(0, size);           // executar compute shader
+  cs.synchronize();              // aguardar processamento
   cs.downloadData(v2, size, 2);  // ler dados da gpu
   std::cout << "v2 = v0+v1 = " << std::ends;
   for (int i = 0; i < size; i++) std::cout << v2[i] << (i == size - 1 ? "\n" : " ") << std::ends;  // mostrar
 
   // kernel 1
   cs.compute(1, size);           // executar compute shader
+  cs.synchronize();              // aguardar processamento
   cs.downloadData(v2, size, 2);  // ler dados da gpu
   std::cout << "v2 = v0*v1 = " << std::ends;
   for (int i = 0; i < size; i++) std::cout << v2[i] << (i == size - 1 ? "\n" : " ") << std::ends;  // mostrar

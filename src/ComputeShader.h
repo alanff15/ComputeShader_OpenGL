@@ -24,6 +24,7 @@ public:
   void compute(uint32_t ProgramIndex, uint32_t sizeX, uint32_t sizeY = 1, uint32_t sizeZ = 1);
   void downloadData(float* data, size_t size, uint32_t BindingIndex);
   void realeaseData();
+  void synchronize();
 
 private:
   void initGL(GLFWwindow*& window, int width = 1, int height = 1, const char* title = "", bool windowVisible = false);
