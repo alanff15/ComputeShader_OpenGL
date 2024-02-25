@@ -19,10 +19,7 @@ ComputeShader::~ComputeShader() {
   // liberar memoria de dados
   realeaseData();
   // apagar programas da gpu
-  for (int ProgramIndex = 0; ProgramIndex < programId.size(); ProgramIndex++) {
-    GLCall(glDeleteProgram(programId[ProgramIndex]));
-  }
-  programId.clear();
+  realeaseKernels();
   // fechar contexto opengl
   glfwTerminate();
 }
@@ -89,6 +86,13 @@ void ComputeShader::realeaseData() {
     GLCall(glDeleteBuffers(1, &bufId[BindingIndex]));
   }
   bufId.clear();
+}
+
+void ComputeShader::realeaseKernels() {
+  for (int ProgramIndex = 0; ProgramIndex < programId.size(); ProgramIndex++) {
+    GLCall(glDeleteProgram(programId[ProgramIndex]));
+  }
+  programId.clear();
 }
 
 void ComputeShader::synchronize(GLuint barriers) {

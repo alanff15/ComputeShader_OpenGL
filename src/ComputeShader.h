@@ -38,8 +38,11 @@ public:
   /// @param BindingIndex index of the buffer
   void downloadData(float* data, size_t size, uint32_t BindingIndex);
 
-  /// @brief Releases all buffers in the GPU memory
+  /// @brief Releases all buffers in the GPU memory, resests the binding index to 0
   void realeaseData();
+
+  /// @brief Remove all kernels in the GPU memory, resests the program index to 0
+  void realeaseKernels();
 
   /// @brief Waits for openGL processes to finish, may assume one of the following values:
   /// GL_ALL_BARRIER_BITS, GL_VERTEX_ATTRIB_ARRAY_BARRIER_BIT, GL_ELEMENT_ARRAY_BARRIER_BIT,
