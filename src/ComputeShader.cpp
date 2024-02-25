@@ -1,9 +1,18 @@
 #include <iostream>
 #include "ComputeShader.h"
 
-ComputeShader::ComputeShader() {
+#define ASSERT(x) \
+  if (!(x)) __debugbreak();
+
+#define GLCall(x) \
+  GLClearError(); \
+  x;              \
+  ASSERT(GLLogCall(#x, __FILE__, __LINE__))
+
+ComputeShader::ComputeShader(GLFWwindow* extWindow) {
   // abrir contexto opengl
-  initGL(window);
+  window = extWindow;
+  if (window == NULL) initGL(window);
 }
 
 ComputeShader::~ComputeShader() {

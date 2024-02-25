@@ -5,17 +5,9 @@
 #include <string>
 #include <vector>
 
-#define ASSERT(x) \
-  if (!(x)) __debugbreak();
-
-#define GLCall(x) \
-  GLClearError(); \
-  x;              \
-  ASSERT(GLLogCall(#x, __FILE__, __LINE__))
-
 class ComputeShader {
 public:
-  ComputeShader();
+  ComputeShader(GLFWwindow* extWindow = NULL);
   ~ComputeShader();
 
   /// @brief Add kernel to the compute shader, 'ProgramIndex' must start with 0 and increment
