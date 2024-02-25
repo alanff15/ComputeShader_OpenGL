@@ -48,14 +48,14 @@ void ComputeShader::addKernel(std::string Program, uint32_t ProgramIndex) {
   GLCall(glDeleteShader(cs));
 }
 
-void ComputeShader::uploadData(float* data, size_t size, uint32_t BindingIndex) {
+void ComputeShader::uploadData(void* data, size_t size, uint32_t BindingIndex) {
   if (BindingIndex == bufId.size()) {
     bufId.push_back(-1);
     GLCall(glGenBuffers(1, &bufId[BindingIndex]));
   }
   if (BindingIndex >= 0 && BindingIndex < bufId.size()) {
     GLCall(glBindBuffer(GL_SHADER_STORAGE_BUFFER, bufId[BindingIndex]));
-    GLCall(glBufferData(GL_SHADER_STORAGE_BUFFER, size * sizeof(float), (GLvoid*)data, GL_DYNAMIC_COPY));
+    GLCall(glBufferData(GL_SHADER_STORAGE_BUFFER, size, (GLvoid*)data, GL_DYNAMIC_COPY));
     GLCall(glBindBufferBase(GL_SHADER_STORAGE_BUFFER, BindingIndex, bufId[BindingIndex]));
   } else {
     std::cout << "[ComputeShader Error] data upload Index=" << BindingIndex << ", next value should be: " << bufId.size() << std::endl;
@@ -71,10 +71,10 @@ void ComputeShader::compute(uint32_t ProgramIndex, uint32_t sizeX, uint32_t size
   }
 }
 
-void ComputeShader::downloadData(float* data, size_t size, uint32_t BindingIndex) {
+void ComputeShader::downloadData(void* data, size_t size, uint32_t BindingIndex) {
   if (BindingIndex >= 0 && BindingIndex < bufId.size()) {
     GLCall(glBindBuffer(GL_SHADER_STORAGE_BUFFER, bufId[BindingIndex]));
-    GLCall(glGetBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, size * sizeof(float), (GLvoid*)data));
+    GLCall(glGetBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, size, (GLvoid*)data));
   } else {
     std::cout << "[ComputeShader Error] data download Index=" << BindingIndex << ", should be between: [0, " << bufId.size() - 1 << "]" << std::endl;
   }

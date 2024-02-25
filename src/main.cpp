@@ -48,21 +48,21 @@ int main() {
   for (int i = 0; i < size; i++) std::cout << v1[i] << (i == size - 1 ? "\n" : " ") << std::ends;  // mostrar
 
   // enviar dados para gpu
-  cs.uploadData(v0, size, 0);  // binding 0
-  cs.uploadData(v1, size, 1);  // binding 1
-  cs.uploadData(v2, size, 2);  // binding 2
+  cs.uploadData(v0, size * sizeof(float), 0);  // binding 0
+  cs.uploadData(v1, size * sizeof(float), 1);  // binding 1
+  cs.uploadData(v2, size * sizeof(float), 2);  // binding 2
 
   // kernel 0
-  cs.compute(0, size);           // executar compute shader
-  cs.synchronize();              // aguardar processamento
-  cs.downloadData(v2, size, 2);  // ler dados da gpu
+  cs.compute(0, size);                           // executar compute shader
+  cs.synchronize();                              // aguardar processamento
+  cs.downloadData(v2, size * sizeof(float), 2);  // ler dados da gpu
   std::cout << "v2 = v0+v1 = " << std::ends;
   for (int i = 0; i < size; i++) std::cout << v2[i] << (i == size - 1 ? "\n" : " ") << std::ends;  // mostrar
 
   // kernel 1
-  cs.compute(1, size);           // executar compute shader
-  cs.synchronize();              // aguardar processamento
-  cs.downloadData(v2, size, 2);  // ler dados da gpu
+  cs.compute(1, size);                           // executar compute shader
+  cs.synchronize();                              // aguardar processamento
+  cs.downloadData(v2, size * sizeof(float), 2);  // ler dados da gpu
   std::cout << "v2 = v0*v1 = " << std::ends;
   for (int i = 0; i < size; i++) std::cout << v2[i] << (i == size - 1 ? "\n" : " ") << std::ends;  // mostrar
 

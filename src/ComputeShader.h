@@ -18,10 +18,10 @@ public:
 
   /// @brief Upload data from local memory to the GPU, 'BindingIndex' must start with 0 and
   /// increment if you select the same 'BindingIndex' the later data will replace the previous
-  /// @param data data array to be uploaded, type 'float'
-  /// @param size size of the float array (number of floats, eg.: float data[5] -> size=5)
+  /// @param data data array to be uploaded, type 'void*'
+  /// @param size size of the array in bytes (eg.: float data[5] -> size=20)
   /// @param BindingIndex index of the actual binding to be selected inside the kernel layout
-  void uploadData(float* data, size_t size, uint32_t BindingIndex);
+  void uploadData(void* data, size_t size, uint32_t BindingIndex);
 
   /// @brief Runs the compute shader selected by 'ProgramIndex' with as many workgroups per axis
   /// as indicated by 'sizeX', 'sizeY' and 'sizeZ'
@@ -33,10 +33,10 @@ public:
 
   /// @brief Download data from the GPU to the local memory, 'BindingIndex' indicates from which
   /// buffer the data will be taken
-  /// @param data data array to be downloaded, type 'float'
-  /// @param size size of the float array (number of floats, eg.: float data[5] -> size=5)
+  /// @param data data array to be downloaded, type 'void*'
+  /// @param size size of the array in bytes (eg.: float data[5] -> size=20)
   /// @param BindingIndex index of the buffer
-  void downloadData(float* data, size_t size, uint32_t BindingIndex);
+  void downloadData(void* data, size_t size, uint32_t BindingIndex);
 
   /// @brief Releases all buffers in the GPU memory, resests the binding index to 0
   void realeaseData();
