@@ -18,7 +18,7 @@ public:
 
   /// @brief Upload data from local memory to the GPU, 'BindingIndex' must start with 0 and
   /// increment if you select the same 'BindingIndex' the later data will replace the previous
-  /// @param data data array to be uploaded, type 'void*'
+  /// @param data data array to be uploaded, type 'void*', use NULL to simply allocate memory
   /// @param size size of the array in bytes (eg.: float data[5] -> size=20)
   /// @param BindingIndex index of the actual binding to be selected inside the kernel layout
   void uploadData(void* data, size_t size, uint32_t BindingIndex);
