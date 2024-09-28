@@ -1,7 +1,7 @@
 #include <iostream>
 #include <algorithm>
 #include <chrono>
-#include "ComputeShader.h"
+#include "ComputeShader/ComputeShader.h"
 
 static const std::string process = R"glsl(
 ///////////////////////////////////////////////////////////////////////////////
