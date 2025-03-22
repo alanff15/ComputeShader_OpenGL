@@ -17,6 +17,9 @@ target_link_libraries(ComputeShader PUBLIC
     OpenGL32.lib
 )
 
+find_package(OpenMP)
+link_libraries(OpenMP::OpenMP_CXX)
+
 #################################################
 add_executable(teste_compShader
     ${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp

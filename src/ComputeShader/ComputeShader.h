@@ -50,8 +50,8 @@ public:
   /// GL_COMMAND_BARRIER_BIT, GL_PIXEL_BUFFER_BARRIER_BIT,GL_TEXTURE_UPDATE_BARRIER_BIT,
   /// GL_BUFFER_UPDATE_BARRIER_BIT, GL_FRAMEBUFFER_BARRIER_BIT, GL_TRANSFORM_FEEDBACK_BARRIER_BIT,
   /// GL_ATOMIC_COUNTER_BARRIER_BIT, GL_SHADER_STORAGE_BARRIER_BIT
-  /// @param barriers default value is GL_ALL_BARRIER_BITS
-  void synchronize(GLuint barriers = GL_ALL_BARRIER_BITS);
+  /// @param barriers default value is GL_SHADER_STORAGE_BARRIER_BIT
+  void synchronize(GLuint barriers = GL_SHADER_STORAGE_BARRIER_BIT);
 
 private:
   void initGL(GLFWwindow*& window, int width = 1, int height = 1, const char* title = "", bool windowVisible = false);
