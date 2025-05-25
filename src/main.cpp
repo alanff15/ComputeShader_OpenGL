@@ -3,18 +3,15 @@
 #include <chrono>
 #include "ComputeShader/ComputeShader.h"
 
-#define M_PI 3.1415926535897932384626433832795f
-
 static const std::string process = R"glsl(
 ///////////////////////////////////////////////////////////////////////////////
 #version 430 core
 layout(local_size_x = 8, local_size_y = 4, local_size_z = 1) in;
-layout(binding = 0) buffer B0 { uint img[]; };
+layout(std430, binding = 0) buffer B0 { uint img[]; };
 void main() {
   const uvec3 gSize = gl_WorkGroupSize * gl_NumWorkGroups;
   const uint j = gl_GlobalInvocationID.x;
   const uint i = gl_GlobalInvocationID.y;
-
   const float x = float(j) / float(gSize.x - 1);
   const float y = float(i) / float(gSize.y - 1);
   const float fxr = 15.5f;
@@ -67,7 +64,7 @@ int main() {
     }
   }
   t1 = std::chrono::high_resolution_clock::now();
-  std::cout << "tempo CPU: " << (t1 - t0).count() * 1e-6 << " ms" << std::endl;
+  std::cout << "tempo CPU: " << (t1 - t0).count() * 1e-6 << "[ms]" << std::endl;
 
   // salvar arquivo
   std::string rawFileName = "../../res/img_CPU_" + std::to_string(w) + "x" + std::to_string(h) + ".raw";
@@ -77,15 +74,15 @@ int main() {
 
   // GPU
   ComputeShader cs;
-  cs.addKernel(process, 0);
-  cs.uploadData(img.data(), w * h * sizeof(uint32_t), 0);
+  cs.addKernel(process, 0);                       // compilar kernel
+  cs.reserveMemory(w * h * sizeof(uint32_t), 0);  // alocar memoria
   t0 = std::chrono::high_resolution_clock::now();
-  cs.uploadData(img.data(), w * h * sizeof(uint32_t), 0);
-  cs.compute(0, w / 8, h / 4);
-  cs.synchronize();
-  cs.downloadData(img.data(), w * h * sizeof(uint32_t), 0);
+  cs.uploadData(img.data(), 0, w * h * sizeof(uint32_t), 0);    // enviar dados
+  cs.compute(0, w / 8, h / 4);                                  // iniciar calculo
+  cs.synchronize();                                             // agauradar concluir
+  cs.downloadData(img.data(), 0, w * h * sizeof(uint32_t), 0);  // retornar resultado
   t1 = std::chrono::high_resolution_clock::now();
-  std::cout << "tempo GPU: " << (t1 - t0).count() * 1e-6 << " ms" << std::endl;
+  std::cout << "tempo GPU: " << (t1 - t0).count() * 1e-6 << "[ms]" << std::endl;
 
   // salvar arquivo
   rawFileName = "../../res/img_GPU_" + std::to_string(w) + "x" + std::to_string(h) + ".raw";

@@ -1,5 +1,7 @@
 #pragma once
+#ifndef GLEW_STATIC
 #define GLEW_STATIC
+#endif
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <string>
@@ -16,12 +18,18 @@ public:
   /// @param ProgramIndex index of the actual kernel to receive the shader
   void addKernel(std::string prog, uint32_t ProgramIndex);
 
+  /// @brief Reserve memory on the GPU, 'BindingIndex' must start with 0 and
+  /// increment if you select the same 'BindingIndex' the later data will replace the previous
+  /// @param size size of the array in bytes (eg.: float data[5] -> size=20)
+  /// @param BindingIndex index of the actual binding to be selected inside the kernel layout
+  void reserveMemory(size_t size, uint32_t BindingIndex);
+
   /// @brief Upload data from local memory to the GPU, 'BindingIndex' must start with 0 and
   /// increment if you select the same 'BindingIndex' the later data will replace the previous
   /// @param data data array to be uploaded, type 'void*', use NULL to simply allocate memory
   /// @param size size of the array in bytes (eg.: float data[5] -> size=20)
   /// @param BindingIndex index of the actual binding to be selected inside the kernel layout
-  void uploadData(void* data, size_t size, uint32_t BindingIndex);
+  void uploadData(void* data, size_t offset, size_t size, uint32_t BindingIndex);
 
   /// @brief Runs the compute shader selected by 'ProgramIndex' with as many workgroups per axis
   /// as indicated by 'sizeX', 'sizeY' and 'sizeZ'
@@ -36,7 +44,7 @@ public:
   /// @param data data array to be downloaded, type 'void*'
   /// @param size size of the array in bytes (eg.: float data[5] -> size=20)
   /// @param BindingIndex index of the buffer
-  void downloadData(void* data, size_t size, uint32_t BindingIndex);
+  void downloadData(void* data, size_t offset, size_t size, uint32_t BindingIndex);
 
   /// @brief Releases all buffers in the GPU memory, resests the binding index to 0
   void realeaseData();
@@ -53,6 +61,11 @@ public:
   /// @param barriers default value is GL_SHADER_STORAGE_BARRIER_BIT
   void synchronize(GLuint barriers = GL_SHADER_STORAGE_BARRIER_BIT);
 
+  /// @brief Enable/disable command to ensure current window context in the begining of every method.
+  /// This options is off by default, call this methos without parameters to turn on
+  /// @param enable value
+  void makeCurrent(bool enable = true);
+
 private:
   void initGL(GLFWwindow*& window, int width = 1, int height = 1, const char* title = "", bool windowVisible = false);
   void GLClearError();
@@ -61,4 +74,5 @@ private:
   GLFWwindow* window;
   std::vector<GLuint> programId;
   std::vector<GLuint> bufId;
+  bool makeCurrentEnable;
 };
