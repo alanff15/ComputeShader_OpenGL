@@ -7,10 +7,12 @@ add_library(ComputeShader
     ${CMAKE_CURRENT_SOURCE_DIR}/src/ComputeShader/ComputeShader.cpp
 )
 target_include_directories(ComputeShader PUBLIC
-	${CMAKE_CURRENT_SOURCE_DIR}/dep/glfw-3.3.8.bin.WIN64/include
 	${CMAKE_CURRENT_SOURCE_DIR}/dep/glew-2.1.0/include
 )
-target_link_libraries(ComputeShader PUBLIC
+target_include_directories(ComputeShader PRIVATE
+	${CMAKE_CURRENT_SOURCE_DIR}/dep/glfw-3.3.8.bin.WIN64/include
+)
+target_link_libraries(ComputeShader PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/dep/glfw-3.3.8.bin.WIN64/lib-vc2022/glfw3.lib
     ${CMAKE_CURRENT_SOURCE_DIR}/dep/glfw-3.3.8.bin.WIN64/lib-vc2022/glfw3_mt.lib
     ${CMAKE_CURRENT_SOURCE_DIR}/dep/glew-2.1.0/lib/Release/x64/glew32s.lib

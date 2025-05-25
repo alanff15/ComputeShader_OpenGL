@@ -3,13 +3,13 @@
 #define GLEW_STATIC
 #endif
 #include <GL/glew.h>
-#include <GLFW/glfw3.h>
-#include <string>
 #include <vector>
+
+struct GLFWwindow;
 
 class ComputeShader {
 public:
-  ComputeShader(GLFWwindow* extWindow = NULL);
+  ComputeShader(GLFWwindow* extWindow = nullptr);
   ~ComputeShader();
 
   /// @brief Add kernel to the compute shader, 'ProgramIndex' must start with 0 and increment

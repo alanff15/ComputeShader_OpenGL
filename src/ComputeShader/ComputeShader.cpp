@@ -1,21 +1,26 @@
 #include <iostream>
 #include "ComputeShader.h"
+#include <GLFW/glfw3.h>
 
+#ifndef NDEBUG
 #define ASSERT(x) \
   if (!(x)) __debugbreak();
-
 #define GLCall(x) \
   GLClearError(); \
   x;              \
   ASSERT(GLLogCall(#x, __FILE__, __LINE__))
+#else
+#define GLCall(x) x
+#endif
 
 ComputeShader::ComputeShader(GLFWwindow* extWindow) : makeCurrentEnable(false) {
   // abrir contexto opengl
   window = extWindow;
-  if (window == NULL) initGL(window);
+  if (window == nullptr) initGL(window);
 }
 
 ComputeShader::~ComputeShader() {
+  if (makeCurrentEnable) glfwMakeContextCurrent(window);
   // liberar memoria de dados
   realeaseData();
   // apagar programas da gpu
